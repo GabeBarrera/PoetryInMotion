@@ -1,0 +1,184 @@
+﻿<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <title>Poetry in Motion</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Courier+Prime:ital,wght@0,400;0,700;1,400&family=Special+Elite&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body data-view="home">
+
+  <!-- Persistent video stage. Two layered video tags so we can crossfade. -->
+  <div class="stage" aria-hidden="true">
+    <video class="stage__video stage__video--a is-active" id="videoA" autoplay muted loop playsinline preload="auto"></video>
+    <video class="stage__video stage__video--b" id="videoB" autoplay muted loop playsinline preload="auto"></video>
+    <div class="stage__vignette"></div>
+    <div class="stage__grain"></div>
+  </div>
+
+  <!-- Header / nav -->
+  <header class="masthead">
+    <a class="masthead__brand" href="#/" data-link="home">
+      <span class="masthead__mark">Â¶</span>
+      <span class="masthead__name">Poetry&nbsp;in&nbsp;Motion</span>
+    </a>
+    <nav class="masthead__nav" aria-label="Primary">
+      <a href="#/poems" data-link="poems" class="navlink">Poems</a>
+      <a href="#/about" data-link="about" class="navlink">About</a>
+    </nav>
+  </header>
+
+  <!-- Scroll proxy: only used on the home view to drive the title -> bio transition. -->
+  <main class="surface" id="surface">
+
+    <!-- ============ HOME VIEW ============ -->
+    <section class="view view--home" data-view="home" data-screen-label="Home">
+
+      <div class="home-title" id="homeTitle">
+        <div class="home-title__eyebrow">
+          <span class="dot"></span>
+          <span>est. 2026 &middot; a quiet broadcast</span>
+          <span class="dot"></span>
+        </div>
+        <h1 class="home-title__h1">
+          <span class="home-title__line"><span>Poetry</span></span>
+          <span class="home-title__line home-title__line--mid"><span>in</span></span>
+          <span class="home-title__line"><span>Motion</span></span>
+        </h1>
+        <p class="home-title__sub">
+          <span class="caret">_</span>&nbsp; small weathers, set to music.
+        </p>
+        <div class="home-title__hint">
+          <span class="arrow">â†“</span>
+          <span>scroll to read on</span>
+        </div>
+      </div>
+
+      <div class="home-bio" id="homeBio" aria-hidden="true">
+        <div class="home-bio__inner">
+          <div class="home-bio__rule"></div>
+          <p class="home-bio__kicker">â€” a note from the desk â€”</p>
+          <p class="home-bio__lead">
+            Poetry in Motion is a small, slow journal of moving poems.
+            Each piece is a short text set against a single looped image:
+            the tide, the static, a cloud that will not leave the window.
+          </p>
+          <p class="home-bio__body">
+            We publish irregularly. We believe a poem is a kind of weather
+            you walk into and out of, and that the right film loop â€”
+            chosen carefully, played quietly â€” can be the doorframe.
+            Nothing here is meant to be hurried. Read one. Read it twice.
+            Let the video keep going after you have closed the page.
+          </p>
+          <p class="home-bio__signoff">
+            â€” the editors<br/>
+            <span class="home-bio__loc">somewhere coastal, 04:11</span>
+          </p>
+          <div class="home-bio__cta">
+            <a href="#/poems" data-link="poems" class="btn">Read the poems &rarr;</a>
+            <a href="#/about" data-link="about" class="btn btn--ghost">About this project</a>
+          </div>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ============ ABOUT VIEW ============ -->
+    <section class="view view--about" data-view="about" data-screen-label="About" hidden>
+      <div class="about">
+        <p class="about__eyebrow">// about</p>
+        <h2 class="about__h2">A journal,<br/>set to a single<br/>looping image.</h2>
+
+        <div class="about__cols">
+          <div class="about__col">
+            <p class="about__p">
+              Poetry in Motion began as a private habit: writing short poems
+              to play under a film loop, the way other people score films
+              with music. We kept doing it. Eventually it had a name.
+            </p>
+            <p class="about__p">
+              Every issue is one poem and one moving image, chosen so that
+              neither describes the other. The film is not an illustration.
+              The poem is not a caption. They are two strangers seated at the
+              same long table, waiting for the soup.
+            </p>
+          </div>
+          <div class="about__col">
+            <p class="about__p">
+              We are a small editorial of two. We read on Sundays. We reply,
+              eventually. We do not pay in money â€” we pay in a careful page,
+              a film chosen with you, and a permanent place in the index.
+            </p>
+            <p class="about__p">
+              If you would like to submit, write to the address printed at
+              the bottom of every poem. Please attach nothing. Paste the
+              poem into the body of the letter, the way one used to.
+            </p>
+          </div>
+        </div>
+
+        <dl class="about__meta">
+          <div><dt>founded</dt><dd>spring, 2026</dd></div>
+          <div><dt>frequency</dt><dd>when the weather is right</dd></div>
+          <div><dt>editors</dt><dd>M. Holloway &middot; J. Renn</dd></div>
+          <div><dt>mail</dt><dd>desk@poetry-in-motion.test</dd></div>
+        </dl>
+      </div>
+    </section>
+
+    <!-- ============ POEMS VIEW (carousel) ============ -->
+    <section class="view view--poems" data-view="poems" data-screen-label="Poems" hidden>
+      <div class="poems">
+        <header class="poems__head">
+          <p class="poems__eyebrow">// the index &middot; <span id="poemsCounter">01 / 06</span></p>
+          <h2 class="poems__h2">Six small films,<br/>six smaller poems.</h2>
+          <p class="poems__hint">
+            <span class="kbd">â†</span><span class="kbd">â†’</span> to browse &middot;
+            <span class="kbd">â†µ</span> to open &middot;
+            or drag a card
+          </p>
+        </header>
+
+        <div class="carousel" id="carousel">
+          <button class="carousel__nav carousel__nav--prev" id="carouselPrev" aria-label="Previous poem">
+            <span>â†</span>
+          </button>
+
+          <div class="carousel__viewport" id="carouselViewport">
+            <div class="carousel__track" id="carouselTrack">
+              <!-- cards injected by JS -->
+            </div>
+          </div>
+
+          <button class="carousel__nav carousel__nav--next" id="carouselNext" aria-label="Next poem">
+            <span>â†’</span>
+          </button>
+        </div>
+
+        <div class="carousel__dots" id="carouselDots"></div>
+      </div>
+    </section>
+
+    <!-- ============ POEM DETAIL VIEW ============ -->
+    <section class="view view--poem" data-view="poem" data-screen-label="Poem" hidden>
+      <a href="#/poems" data-link="poems" class="poem__back">â† back to the index</a>
+      <article class="poem" id="poemBody">
+        <!-- injected -->
+      </article>
+    </section>
+
+  </main>
+
+  <!-- ambient corner marks -->
+  <div class="corner corner--tl">N 41Â° 22'</div>
+  <div class="corner corner--bl">W 071Â° 06'</div>
+  <div class="corner corner--br"><span class="blink">â—</span> REC &middot; loop 01</div>
+
+  <script src="poems.js"></script>
+  <script src="main.js"></script>
+</body>
+</html>
+
