@@ -1,4 +1,4 @@
-﻿<!doctype html>
+<!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8" />
@@ -22,7 +22,7 @@
   <!-- Header / nav -->
   <header class="masthead">
     <a class="masthead__brand" href="#/" data-link="home">
-      <span class="masthead__mark">Â¶</span>
+      <span class="masthead__mark">¶</span>
       <span class="masthead__name">Poetry&nbsp;in&nbsp;Motion</span>
     </a>
     <nav class="masthead__nav" aria-label="Primary">
@@ -52,7 +52,7 @@
           <span class="caret">_</span>&nbsp; small weathers, set to music.
         </p>
         <div class="home-title__hint">
-          <span class="arrow">â†“</span>
+          <span class="arrow">↓</span>
           <span>scroll to read on</span>
         </div>
       </div>
@@ -60,7 +60,7 @@
       <div class="home-bio" id="homeBio" aria-hidden="true">
         <div class="home-bio__inner">
           <div class="home-bio__rule"></div>
-          <p class="home-bio__kicker">â€” a note from the desk â€”</p>
+          <p class="home-bio__kicker">— a note from the desk —</p>
           <p class="home-bio__lead">
             Poetry in Motion is a small, slow journal of moving poems.
             Each piece is a short text set against a single looped image:
@@ -68,13 +68,13 @@
           </p>
           <p class="home-bio__body">
             We publish irregularly. We believe a poem is a kind of weather
-            you walk into and out of, and that the right film loop â€”
-            chosen carefully, played quietly â€” can be the doorframe.
+            you walk into and out of, and that the right film loop —
+            chosen carefully, played quietly — can be the doorframe.
             Nothing here is meant to be hurried. Read one. Read it twice.
             Let the video keep going after you have closed the page.
           </p>
           <p class="home-bio__signoff">
-            â€” the editors<br/>
+            — the editors<br/>
             <span class="home-bio__loc">somewhere coastal, 04:11</span>
           </p>
           <div class="home-bio__cta">
@@ -109,7 +109,7 @@
           <div class="about__col">
             <p class="about__p">
               We are a small editorial of two. We read on Sundays. We reply,
-              eventually. We do not pay in money â€” we pay in a careful page,
+              eventually. We do not pay in money — we pay in a careful page,
               a film chosen with you, and a permanent place in the index.
             </p>
             <p class="about__p">
@@ -135,16 +135,22 @@
         <header class="poems__head">
           <p class="poems__eyebrow">// the index &middot; <span id="poemsCounter">01 / 06</span></p>
           <h2 class="poems__h2">Six small films,<br/>six smaller poems.</h2>
-          <p class="poems__hint">
-            <span class="kbd">â†</span><span class="kbd">â†’</span> to browse &middot;
-            <span class="kbd">â†µ</span> to open &middot;
-            or drag a card
-          </p>
+          <div class="poems__bar">
+            <p class="poems__hint">
+              <span class="kbd">←</span><span class="kbd">→</span> to browse &middot;
+              <span class="kbd">↵</span> to open &middot;
+              or drag a card
+            </p>
+            <div class="poems__tools">
+              <button class="btn btn--ghost" data-editor="videos">⌗ videos</button>
+              <button class="btn" data-editor="poem">+ new poem</button>
+            </div>
+          </div>
         </header>
 
         <div class="carousel" id="carousel">
           <button class="carousel__nav carousel__nav--prev" id="carouselPrev" aria-label="Previous poem">
-            <span>â†</span>
+            <span>←</span>
           </button>
 
           <div class="carousel__viewport" id="carouselViewport">
@@ -154,7 +160,7 @@
           </div>
 
           <button class="carousel__nav carousel__nav--next" id="carouselNext" aria-label="Next poem">
-            <span>â†’</span>
+            <span>→</span>
           </button>
         </div>
 
@@ -164,7 +170,7 @@
 
     <!-- ============ POEM DETAIL VIEW ============ -->
     <section class="view view--poem" data-view="poem" data-screen-label="Poem" hidden>
-      <a href="#/poems" data-link="poems" class="poem__back">â† back to the index</a>
+      <a href="#/poems" data-link="poems" class="poem__back">← back to the index</a>
       <article class="poem" id="poemBody">
         <!-- injected -->
       </article>
@@ -173,12 +179,13 @@
   </main>
 
   <!-- ambient corner marks -->
-  <div class="corner corner--tl">N 41Â° 22'</div>
-  <div class="corner corner--bl">W 071Â° 06'</div>
-  <div class="corner corner--br"><span class="blink">â—</span> REC &middot; loop 01</div>
+  <div class="corner corner--tl">N 41° 22'</div>
+  <div class="corner corner--bl">W 071° 06'</div>
+  <div class="corner corner--br"><span class="blink">●</span> REC &middot; loop 01</div>
 
   <script src="poems.js"></script>
+  <script src="store.js"></script>
+  <script src="editor.js"></script>
   <script src="main.js"></script>
 </body>
 </html>
-

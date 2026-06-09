@@ -7,12 +7,42 @@
   const $ = (sel, root) => (root || document).querySelector(sel);
   const $$ = (sel, root) => Array.from((root || document).querySelectorAll(sel));
 
+  const Store = window.PIMStore;
+
+  // ---- dynamic poem list (built-in + custom from store) ----
+  // Snapshot the built-in poems so custom ones can be appended/merged.
+  window.POEMS_ORIGINAL = (window.POEMS || []).slice();
+  window.POEMS_BUILTIN_COUNT = window.POEMS_ORIGINAL.length;
+
+  function computePoems() {
+    const custom = Store ? Store.getPoems() : [];
+    return window.POEMS_ORIGINAL.concat(custom);
+  }
+  let POEMS = computePoems();
+  window.POEMS = POEMS; // keep editor's builtinClips() in sync
+
+  // resolve a video ref (raw url or "lib:<id>") then assign to a <video>
+  async function resolveInto(videoEl, ref) {
+    if (!videoEl) return;
+    const url = Store ? await Store.resolveRef(ref) : ref;
+    if (url && videoEl.getAttribute('data-ref') === ref) {
+      videoEl.src = url;
+      const p = videoEl.play(); if (p && p.catch) p.catch(() => {});
+    }
+  }
+
   // ---- video crossfader ------------------------------------
   const VA = $('#videoA');
   const VB = $('#videoB');
   let currentVid = VA;
   let nextVid = VB;
   let currentSrc = '';
+
+  // resolve a ref then crossfade the stage to it
+  async function setStageRef(ref) {
+    const url = Store ? await Store.resolveRef(ref) : ref;
+    setStageVideo(url);
+  }
 
   function setStageVideo(src) {
     if (!src || src === currentSrc) return;
@@ -44,7 +74,6 @@
   const track = $('#carouselTrack');
   const dotsWrap = $('#carouselDots');
   const counter = $('#poemsCounter');
-  const POEMS = window.POEMS || [];
 
   function buildCarousel() {
     track.innerHTML = '';
@@ -55,7 +84,7 @@
       card.dataset.index = i;
       card.dataset.id = p.id;
       card.innerHTML = `
-        <video class="card__video" src="${p.video}" autoplay muted loop playsinline preload="metadata"></video>
+        <video class="card__video" data-ref="${p.video}" autoplay muted loop playsinline preload="metadata"></video>
         <div class="card__veil"></div>
         <span class="card__corner-tl">№ ${p.number}</span>
         <span class="card__corner-br">loop</span>
@@ -68,6 +97,7 @@
         <span class="card__open-hint">press ↵ or click to open</span>
       `;
       track.appendChild(card);
+      resolveInto(card.querySelector('.card__video'), p.video);
 
       const dot = document.createElement('button');
       dot.className = 'dot-btn';
@@ -129,6 +159,7 @@
     activeIdx = Math.max(0, Math.min(POEMS.length - 1, i));
     dragX = 0;
     applyCarousel(true);
+    syncStageToActive();
   }
 
   // ---- carousel interactions -------------------------------
@@ -179,6 +210,7 @@
       else if (dragX > threshold) activeIdx = Math.max(0, activeIdx - 1);
       dragX = 0;
       applyCarousel(true);
+      syncStageToActive();
     }
 
     vp.addEventListener('mousedown', (e) => { e.preventDefault(); onDown(e.clientX); });
@@ -318,27 +350,52 @@
 
     if (r.view === 'home') {
       showView('home');
-      setStageVideo(window.VIEW_VIDEOS.home);
-      // reset scroll back to top on home re-entry? leave alone for now.
+      setStageRef(viewVideoRef('home'));
     } else if (r.view === 'about') {
       showView('about');
-      setStageVideo(window.VIEW_VIDEOS.about);
+      setStageRef(viewVideoRef('about'));
     } else if (r.view === 'poems') {
       showView('poems');
-      // use the active card's video as the bg too — it'll be mostly hidden by cards
       const p = POEMS[activeIdx];
-      if (p) setStageVideo(p.video);
-      // re-layout after show
+      if (p) setStageRef(p.video);
       requestAnimationFrame(() => { applyCarousel(true); });
     } else if (r.view === 'poem') {
       const p = renderPoem(r.id);
       showView('poem');
-      if (p) setStageVideo(p.video);
+      if (p) setStageRef(p.video);
     }
+  }
+
+  // resolve the active background-film ref for a view (override or default)
+  function viewVideoRef(view) {
+    const overrides = Store ? Store.getViewVideos() : {};
+    return overrides[view] || (window.VIEW_VIDEOS && window.VIEW_VIDEOS[view]) || '';
   }
 
   function openPoem(id) {
     location.hash = `#/poem/${id}`;
+  }
+
+  // keep the stage film in sync with the active card while browsing
+  function syncStageToActive() {
+    if (document.body.dataset.view !== 'poems') return;
+    const p = POEMS[activeIdx];
+    if (p) setStageRef(p.video);
+  }
+
+  // ---- rebuild when content changes (editor) ---------------
+  function rebuild() {
+    const prevId = POEMS[activeIdx] && POEMS[activeIdx].id;
+    POEMS = computePoems();
+    window.POEMS = POEMS;
+    buildCarousel();
+    let idx = POEMS.findIndex(p => p.id === prevId);
+    if (idx < 0) idx = Math.min(activeIdx, POEMS.length - 1);
+    activeIdx = Math.max(0, idx);
+    applyCarousel(false);
+    const v = document.body.dataset.view;
+    if (v === 'home' || v === 'about') setStageRef(viewVideoRef(v));
+    else if (v === 'poems') syncStageToActive();
   }
 
   // ---- keyboard --------------------------------------------
@@ -396,16 +453,29 @@
     applyCarousel(true);
   });
 
+  // ---- editor trigger buttons ------------------------------
+  function bindEditor() {
+    if (!window.PIMEditor) return;
+    document.addEventListener('click', (e) => {
+      const t = e.target.closest('[data-editor]');
+      if (!t) return;
+      e.preventDefault();
+      window.PIMEditor.open(t.dataset.editor || 'poem');
+    });
+    window.addEventListener('pim:datachanged', rebuild);
+  }
+
   // ---- init ------------------------------------------------
   function init() {
     // initial video
-    setStageVideo(window.VIEW_VIDEOS.home);
+    setStageRef(viewVideoRef('home'));
 
     buildCarousel();
     bindCarousel();
     bindHomeScroll();
     bindKeys();
     bindNav();
+    bindEditor();
 
     window.addEventListener('hashchange', route);
     route();
