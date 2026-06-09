@@ -15,8 +15,11 @@
   window.POEMS_BUILTIN_COUNT = window.POEMS_ORIGINAL.length;
 
   function computePoems() {
+    const overrides = Store ? Store.getOverrides() : {};
+    const builtins = window.POEMS_ORIGINAL.map(p =>
+      overrides[p.id] ? Object.assign({}, p, overrides[p.id]) : p);
     const custom = Store ? Store.getPoems() : [];
-    return window.POEMS_ORIGINAL.concat(custom);
+    return builtins.concat(custom);
   }
   let POEMS = computePoems();
   window.POEMS = POEMS; // keep editor's builtinClips() in sync
@@ -95,6 +98,7 @@
           <p class="card__epigraph">${p.epigraph}</p>
         </div>
         <span class="card__open-hint">press ↵ or click to open</span>
+        <button class="card__edit" data-admin-only data-edit-card="${p.id}" title="Edit this poem">✎ edit</button>
       `;
       track.appendChild(card);
       resolveInto(card.querySelector('.card__video'), p.video);
@@ -173,8 +177,14 @@
       goTo(parseInt(btn.dataset.index, 10));
     });
 
-    // click card: if active, open; else focus it
+    // click card: edit button opens editor; else if active open, else focus
     track.addEventListener('click', (e) => {
+      const editBtn = e.target.closest('[data-edit-card]');
+      if (editBtn) {
+        e.stopPropagation();
+        if (window.PIMEditor) window.PIMEditor.edit(editBtn.dataset.editCard);
+        return;
+      }
       if (Math.abs(dragX) > 6) return; // suppress click after drag
       const card = e.target.closest('.card');
       if (!card) return;
@@ -315,15 +325,20 @@
     const p = POEMS.find(x => x.id === id);
     const root = $('#poemBody');
     if (!p || !root) return null;
-    const lines = p.body.map((l, i) =>
-      `<span class="poem__line" style="animation-delay:${0.2 + i * 0.08}s">${l || '&nbsp;'}</span>`
-    ).join('');
+    let bodyMarkup;
+    if (p.bodyHtml) {
+      bodyMarkup = `<div class="poem__rich">${p.bodyHtml}</div>`;
+    } else {
+      bodyMarkup = '<div class="poem__body">' + (p.body || []).map((l, i) =>
+        `<span class="poem__line" style="animation-delay:${0.2 + i * 0.08}s">${l || '&nbsp;'}</span>`
+      ).join('') + '</div>';
+    }
     root.innerHTML = `
       <p class="poem__num">poem № ${p.number}</p>
       <h2 class="poem__title">${p.title}</h2>
-      <p class="poem__epigraph">${p.epigraph}</p>
+      <p class="poem__epigraph">${p.epigraph || ''}</p>
       <div class="poem__rule"></div>
-      <div class="poem__body">${lines}</div>
+      ${bodyMarkup}
       <div class="poem__footer">
         <span>filed under: small weather</span>
         <span>
@@ -458,15 +473,38 @@
     if (!window.PIMEditor) return;
     document.addEventListener('click', (e) => {
       const t = e.target.closest('[data-editor]');
-      if (!t) return;
-      e.preventDefault();
-      window.PIMEditor.open(t.dataset.editor || 'poem');
+      if (t) {
+        e.preventDefault();
+        window.PIMEditor.open(t.dataset.editor || 'poem');
+        return;
+      }
+      // profile / admin icon
+      const prof = e.target.closest('[data-profile]');
+      if (prof) {
+        e.preventDefault();
+        window.PIMEditor.openLogin();
+        return;
+      }
+      // edit the poem currently open in detail view
+      const editCur = e.target.closest('[data-edit-current]');
+      if (editCur) {
+        e.preventDefault();
+        const curId = (location.hash.match(/#\/poem\/(.+)$/) || [])[1];
+        if (curId) window.PIMEditor.edit(curId);
+        return;
+      }
     });
     window.addEventListener('pim:datachanged', rebuild);
+    window.addEventListener('pim:authchanged', () => { applyAdminClass(); rebuild(); });
+  }
+
+  function applyAdminClass() {
+    document.body.classList.toggle('is-admin', !!(Store && Store.isAdmin()));
   }
 
   // ---- init ------------------------------------------------
   function init() {
+    applyAdminClass();
     // initial video
     setStageRef(viewVideoRef('home'));
 

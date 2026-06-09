@@ -10,6 +10,13 @@
   const LS_POEMS  = 'pim.poems.v1';
   const LS_VIDEOS = 'pim.videos.v1';
   const LS_VIEWS  = 'pim.viewVideos.v1';
+  const LS_OVER   = 'pim.overrides.v1';   // edits to built-in poems
+  const LS_ADMIN  = 'pim.admin.v1';
+
+  // NB: a client-only password on a static site is obfuscation, not real
+  // security. Anyone can read it in the source. Fine for gating a personal
+  // publishing UI; do not protect anything sensitive with it.
+  const ADMIN_PASSWORD = 'apoetwhodidntknowit';
 
   const DB_NAME = 'pim-media';
   const DB_STORE = 'blobs';
@@ -155,6 +162,28 @@
       if (ref) v[view] = ref; else delete v[view];
       writeLS(LS_VIEWS, v);
     },
+
+    // ----- edits applied to BUILT-IN poems (kept separate so we never
+    //       mutate poems.js; merged over the originals at read time) -----
+    getOverrides() { return readLS(LS_OVER, {}); },
+    setOverride(id, patch) {
+      const o = Store.getOverrides();
+      o[id] = Object.assign({}, o[id], patch);
+      writeLS(LS_OVER, o);
+    },
+    removeOverride(id) {
+      const o = Store.getOverrides();
+      delete o[id];
+      writeLS(LS_OVER, o);
+    },
+
+    // ----- admin auth -----
+    isAdmin() { return readLS(LS_ADMIN, false) === true; },
+    login(pw) {
+      if (pw === ADMIN_PASSWORD) { writeLS(LS_ADMIN, true); return true; }
+      return false;
+    },
+    logout() { writeLS(LS_ADMIN, false); },
 
     uid
   };

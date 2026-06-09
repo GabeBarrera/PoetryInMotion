@@ -7,7 +7,9 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Courier+Prime:ital,wght@0,400;0,700;1,400&family=Special+Elite&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="styles.css" />
+  <!-- styles.css is loaded by the bootstrap at the end of <body> so that, on
+       tokenised preview hosts, the auth query-string is carried over. On a
+       plain static host (GitHub Pages) the URL stays simply "styles.css". -->
 </head>
 <body data-view="home">
 
@@ -28,6 +30,13 @@
     <nav class="masthead__nav" aria-label="Primary">
       <a href="#/poems" data-link="poems" class="navlink">Poems</a>
       <a href="#/about" data-link="about" class="navlink">About</a>
+      <button class="profile" data-profile aria-label="Editor sign-in" title="Editor sign-in">
+        <svg class="profile__icon" viewBox="0 0 24 24" aria-hidden="true">
+          <circle cx="12" cy="8" r="3.4"></circle>
+          <path d="M5.5 19.5c0-3.6 2.9-6 6.5-6s6.5 2.4 6.5 6"></path>
+        </svg>
+        <span class="profile__star" aria-hidden="true">★</span>
+      </button>
     </nav>
   </header>
 
@@ -142,8 +151,8 @@
               or drag a card
             </p>
             <div class="poems__tools">
-              <button class="btn btn--ghost" data-editor="videos">⌗ videos</button>
-              <button class="btn" data-editor="poem">+ new poem</button>
+              <button class="btn btn--ghost" data-admin-only data-editor="videos">⌗ videos</button>
+              <button class="btn" data-admin-only data-editor="poem">+ new poem</button>
             </div>
           </div>
         </header>
@@ -171,6 +180,7 @@
     <!-- ============ POEM DETAIL VIEW ============ -->
     <section class="view view--poem" data-view="poem" data-screen-label="Poem" hidden>
       <a href="#/poems" data-link="poems" class="poem__back">← back to the index</a>
+      <button class="poem__edit" data-admin-only data-edit-current title="Edit this poem">✎ edit</button>
       <article class="poem" id="poemBody">
         <!-- injected -->
       </article>
@@ -183,9 +193,37 @@
   <div class="corner corner--bl">W 071° 06'</div>
   <div class="corner corner--br"><span class="blink">●</span> REC &middot; loop 01</div>
 
-  <script src="poems.js"></script>
-  <script src="store.js"></script>
-  <script src="editor.js"></script>
-  <script src="main.js"></script>
+  <!-- ---- asset bootstrap ----------------------------------------------
+       Loads the stylesheet and scripts (in order) relative to this page.
+       We append location.search so that preview/staging hosts which guard
+       assets behind a per-page token still authorise these requests. On
+       GitHub Pages location.search is empty, so the paths are just
+       "styles.css", "poems.js", … exactly as committed.                   -->
+  <script>
+    (function () {
+      // Silence the benign "ResizeObserver loop completed with undelivered
+      // notifications" message — it is harmless and not emitted by our code.
+      window.addEventListener('error', function (e) {
+        if (e && e.message && e.message.indexOf('ResizeObserver loop') !== -1) {
+          e.stopImmediatePropagation();
+          e.preventDefault();
+        }
+      });
+
+      var q = location.search || '';
+      var css = document.createElement('link');
+      css.rel = 'stylesheet';
+      css.href = 'styles.css' + q;
+      document.head.appendChild(css);
+
+      // order matters: data → store → rich-text → editor → app
+      ['poems.js', 'store.js', 'richtext.js', 'editor.js', 'main.js'].forEach(function (src) {
+        var s = document.createElement('script');
+        s.src = src + q;
+        s.async = false; // preserve execution order for injected scripts
+        document.head.appendChild(s);
+      });
+    })();
+  </script>
 </body>
 </html>
