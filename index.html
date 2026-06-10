@@ -28,8 +28,14 @@
       <span class="masthead__name">Poetry&nbsp;in&nbsp;Motion</span>
     </a>
     <nav class="masthead__nav" aria-label="Primary">
-      <a href="#/poems" data-link="poems" class="navlink">Poems</a>
-      <a href="#/about" data-link="about" class="navlink">About</a>
+      <div class="nav-links" id="navLinks">
+        <a href="#/poems" data-link="poems" class="navlink">Poems</a>
+        <a href="#/about" data-link="about" class="navlink">About</a>
+        <a href="#/editor" data-link="editor" class="navlink" data-admin-only>Editor</a>
+      </div>
+      <button class="nav-hamburger" id="navHamburger" aria-label="Toggle navigation" aria-expanded="false" aria-controls="navLinks">
+        <span></span><span></span><span></span>
+      </button>
       <button class="profile" data-profile aria-label="Editor sign-in" title="Editor sign-in">
         <svg class="profile__icon" viewBox="0 0 24 24" aria-hidden="true">
           <circle cx="12" cy="8" r="3.4"></circle>
@@ -58,7 +64,7 @@
           <span class="home-title__line"><span>Motion</span></span>
         </h1>
         <p class="home-title__sub">
-          <span class="caret">_</span>&nbsp; small weathers, set to music.
+          <span class="caret">_</span>&nbsp;Creativity caught on Camera
         </p>
         <div class="home-title__hint">
           <span class="arrow">↓</span>
@@ -71,9 +77,10 @@
           <div class="home-bio__rule"></div>
           <p class="home-bio__kicker">— a note from the desk —</p>
           <p class="home-bio__lead">
-            Poetry in Motion is a small, slow journal of moving poems.
-            Each piece is a short text set against a single looped image:
-            the tide, the static, a cloud that will not leave the window.
+            Poetry in Motion is an acknowledgement.
+            It is a grateful homage to the brief moments we experience
+            that breathe life into the ideas and emotions which 
+            mature into our art.
           </p>
           <p class="home-bio__body">
             We publish irregularly. We believe a poem is a kind of weather
@@ -83,7 +90,7 @@
             Let the video keep going after you have closed the page.
           </p>
           <p class="home-bio__signoff">
-            — the editors<br/>
+            — G<br/>
             <span class="home-bio__loc">somewhere coastal, 04:11</span>
           </p>
           <div class="home-bio__cta">
@@ -150,10 +157,6 @@
               <span class="kbd">↵</span> to open &middot;
               or drag a card
             </p>
-            <div class="poems__tools">
-              <button class="btn btn--ghost" data-admin-only data-editor="videos">⌗ videos</button>
-              <button class="btn" data-admin-only data-editor="poem">+ new poem</button>
-            </div>
           </div>
         </header>
 
@@ -186,12 +189,24 @@
       </article>
     </section>
 
+    <!-- ============ EDITOR VIEW ============ -->
+    <section class="view view--editor" data-view="editor" data-screen-label="Editor" hidden>
+      <div class="editor-view">
+        <p class="editor-view__eyebrow">// editor</p>
+        <h2 class="editor-view__h2">Content<br/>Studio</h2>
+        <div class="editor-view__actions">
+          <button class="btn" data-editor="poem">+ new poem</button>
+          <button class="btn btn--ghost" data-editor="videos">⌗ videos</button>
+        </div>
+      </div>
+    </section>
+
   </main>
 
   <!-- ambient corner marks -->
   <div class="corner corner--tl">N 41° 22'</div>
   <div class="corner corner--bl">W 071° 06'</div>
-  <div class="corner corner--br"><span class="blink">●</span> REC &middot; loop 01</div>
+  <div class="corner corner--br"><span class="blink">●</span> REC &middot; LIVE from MEMORY</div>
 
   <!-- ---- asset bootstrap ----------------------------------------------
        Loads the stylesheet and scripts (in order) relative to this page.

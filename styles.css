@@ -207,6 +207,39 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
 body.is-admin .profile { border-color: #e8c15a; color: var(--bone); }
 body.is-admin .profile__star { display: inline-flex; }
 
+/* ---- nav-links wrapper (desktop: transparent flex row) ---- */
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+/* ---- hamburger button (hidden on desktop) ---- */
+.nav-hamburger {
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 5px;
+  width: 32px;
+  height: 32px;
+  border: 1px solid var(--rule-2);
+  border-radius: 2px;
+  transition: border-color 200ms ease;
+}
+.nav-hamburger:hover { border-color: var(--bone-2); }
+.nav-hamburger span {
+  display: block;
+  width: 15px;
+  height: 1px;
+  background: var(--bone);
+  opacity: 0.85;
+  transition: transform 240ms ease, opacity 200ms ease;
+}
+.nav-hamburger.is-open span:nth-child(1) { transform: translateY(6px) rotate(45deg); }
+.nav-hamburger.is-open span:nth-child(2) { opacity: 0; transform: scaleX(0); }
+.nav-hamburger.is-open span:nth-child(3) { transform: translateY(-6px) rotate(-45deg); }
+
 /* ---- admin-only affordances ---- */
 /* !important because some targets (.btn) set their own display later in the
    cascade with equal specificity — the gate must win regardless of source order. */
@@ -517,6 +550,33 @@ body.is-admin [data-admin-only] { display: inline-flex !important; }
 
 @media (max-width: 720px) {
   .about__cols { grid-template-columns: 1fr; }
+  .nav-hamburger { display: flex; }
+  .nav-links {
+    display: none;
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 28;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0;
+    padding: calc(var(--pad-y) * 2 + 44px) var(--pad-x) var(--pad-y);
+    background: rgba(8, 10, 12, 0.97);
+    backdrop-filter: blur(16px) saturate(0.7);
+    -webkit-backdrop-filter: blur(16px) saturate(0.7);
+    border-bottom: 1px solid var(--rule-2);
+  }
+  .nav-links.is-open { display: flex; }
+  .nav-links .navlink {
+    width: 100%;
+    padding: 16px 0;
+    font-size: 13px;
+    letter-spacing: 0.22em;
+    border-bottom: 1px dashed var(--rule);
+    opacity: 1;
+  }
+  .nav-links .navlink:last-of-type { border-bottom: 0; }
+  /* override the inline-flex from data-admin-only inside the mobile menu */
+  body.is-admin .nav-links .navlink[data-admin-only] { display: block !important; }
 }
 
 .about__col { display: flex; flex-direction: column; gap: 16px; }
@@ -964,7 +1024,8 @@ body.is-admin [data-admin-only] { display: inline-flex !important; }
 }
 
 @media (max-width: 720px) {
-  .corner--tl { display: none; }
+  .corner--tl,
+  .corner--bl { display: none; }
 }
 
 /* ===========================================================
@@ -1592,6 +1653,98 @@ body.is-admin .card:hover .card__edit { opacity: 0.92; }
 .auth__input { text-align: center; letter-spacing: 0.12em; margin-bottom: 10px; }
 .auth__err { min-height: 1.1em; margin: 0 0 12px; font-size: 11px; letter-spacing: 0.04em; color: #d99a6c; }
 .auth__go { width: 100%; justify-content: center; }
+
+/* ===========================================================
+   Editor view (admin dashboard)
+   =========================================================== */
+
+.view--editor { overflow-y: auto; }
+
+.editor-view {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: calc(var(--pad-y) + 100px) var(--pad-x) calc(var(--pad-y) + 60px);
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0;
+}
+
+.editor-view__eyebrow {
+  margin: 0 0 18px;
+  font-size: 11px;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: var(--bone-2);
+}
+
+.editor-view__h2 {
+  margin: 0 0 48px;
+  font-family: var(--type);
+  font-weight: 400;
+  font-size: clamp(36px, 6vw, 76px);
+  line-height: 1.02;
+  letter-spacing: -0.01em;
+  text-transform: lowercase;
+}
+
+.editor-view__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+/* ===========================================================
+   Media library browser (inside editor modal)
+   =========================================================== */
+
+.ed-medlib {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 12px;
+}
+
+.medlib-cell {
+  margin: 0;
+  border: 1px solid var(--rule-2);
+  background: #000;
+  overflow: hidden;
+}
+
+.medlib-cell__media {
+  aspect-ratio: 16 / 10;
+  background: #07080a;
+  overflow: hidden;
+}
+
+.medlib-cell__media video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: brightness(0.72);
+  display: block;
+}
+
+.medlib-cell__cap {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 8px 10px;
+}
+
+.medlib-cell__name {
+  font-size: 11px;
+  color: var(--bone-2);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex: 1;
+  min-width: 0;
+}
+
+.medlib-cell__pick { flex-shrink: 0; }
 
 /* ===========================================================
    Reduced motion

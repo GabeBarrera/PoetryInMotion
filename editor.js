@@ -281,21 +281,8 @@
       </div>
 
       <div class="ed-section">
-        <div class="ed-divider">import a film loop</div>
-        <div class="ed-import">
-          <div class="ed-import__col">
-            <span class="ed-label">link by URL</span>
-            <input class="ed-input" id="impName" type="text" placeholder="name (e.g. harbor lights)" />
-            <input class="ed-input" id="impURL" type="url" placeholder="https://…/clip.mp4" />
-            <button class="btn btn--ghost ed-mini" id="impURLBtn">link video</button>
-          </div>
-          <div class="ed-import__div">or</div>
-          <div class="ed-import__col">
-            <span class="ed-label">upload a file <em>· stays in this browser</em></span>
-            <input class="ed-file" id="impFile" type="file" accept="video/*" />
-            <button class="btn btn--ghost ed-mini" id="impFileBtn">add file</button>
-          </div>
-        </div>
+        <div class="ed-divider">select from media library</div>
+        <div class="ed-medlib-wrap" id="mediaLibrary"><p class="ed-empty">Loading media library…</p></div>
       </div>
 
       <div class="ed-section">
@@ -307,33 +294,54 @@
     $('#viewHome', overlay).addEventListener('change', e => { Store.setViewVideo('home', e.target.value); emitChange(); note('landing film updated.', 'ok'); });
     $('#viewAbout', overlay).addEventListener('change', e => { Store.setViewVideo('about', e.target.value); emitChange(); note('about film updated.', 'ok'); });
 
-    // import by URL
-    $('#impURLBtn', overlay).addEventListener('click', () => {
-      const url = $('#impURL', overlay).value.trim();
-      const name = $('#impName', overlay).value.trim();
-      if (!url) { note('paste a video URL first.', 'warn'); return; }
-      Store.addVideoURL(name, url);
-      emitChange();
-      note('video linked.', 'ok');
-      renderVideosTab();
-    });
-
-    // import file
-    $('#impFileBtn', overlay).addEventListener('click', async () => {
-      const input = $('#impFile', overlay);
-      const file = input.files && input.files[0];
-      if (!file) { note('choose a video file first.', 'warn'); return; }
-      const name = $('#impName', overlay).value.trim() || file.name;
-      note('saving file…');
-      try {
-        await Store.addVideoFile(name, file);
-        emitChange();
-        note('file added to your library.', 'ok');
-        renderVideosTab();
-      } catch (err) { note('could not save file (too large?).', 'warn'); }
-    });
-
+    renderMediaLibrary($('#mediaLibrary', overlay));
     renderVideoGrid();
+  }
+
+  async function renderMediaLibrary(container) {
+    if (!container) return;
+    try {
+      const res = await fetch('media/video/index.json');
+      const files = res.ok ? await res.json() : [];
+      if (!files.length) {
+        container.innerHTML = '<p class="ed-empty">No videos found in media/video/.</p>';
+        return;
+      }
+      container.innerHTML = `
+        <div class="ed-medlib">
+          ${files.map(f => `
+            <figure class="medlib-cell" data-file="${esc(f)}">
+              <div class="medlib-cell__media">
+                <video muted loop playsinline src="media/video/${esc(f)}"></video>
+              </div>
+              <figcaption class="medlib-cell__cap">
+                <span class="medlib-cell__name" title="${esc(f)}">${esc(f)}</span>
+                <button class="btn btn--ghost ed-mini medlib-cell__pick" data-pick="${esc(f)}">Choose File</button>
+              </figcaption>
+            </figure>`).join('')}
+        </div>`;
+
+      container.querySelectorAll('video').forEach(v => {
+        const p = v.play(); if (p && p.catch) p.catch(() => {});
+      });
+
+      container.querySelectorAll('[data-pick]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const filename = btn.dataset.pick;
+          const name = filename.replace(/\.[^.]+$/, '').replace(/[-_]/g, ' ');
+          const url = 'media/video/' + filename;
+          const existing = Store.getVideos().find(v => v.kind === 'url' && v.url === url);
+          if (!existing) {
+            Store.addVideoURL(name, url);
+            emitChange();
+          }
+          note('"' + name + '" added to your library.', 'ok');
+          renderVideoGrid();
+        });
+      });
+    } catch (_) {
+      container.innerHTML = '<p class="ed-empty">Could not load media library.</p>';
+    }
   }
 
   function renderVideoGrid() {

@@ -273,7 +273,7 @@
     homeView.addEventListener('touchmove', (e) => {
       if (!touchStart) return;
       const dy = touchStart.y - e.touches[0].clientY;
-      setHomeProgress(touchStart.p + dy / 600);
+      setHomeProgress(touchStart.p + dy / 220);
     }, { passive: true });
     homeView.addEventListener('touchend', () => { touchStart = null; });
 
@@ -290,6 +290,7 @@
     if (parts[0] === 'about') return { view: 'about' };
     if (parts[0] === 'poems') return { view: 'poems' };
     if (parts[0] === 'poem' && parts[1]) return { view: 'poem', id: parts[1] };
+    if (parts[0] === 'editor') return { view: 'editor' };
     return { view: 'home' };
   }
 
@@ -297,9 +298,10 @@
     $$('.navlink').forEach(a => {
       const link = a.dataset.link;
       const match =
-        (view === 'about' && link === 'about') ||
-        (view === 'poems' && link === 'poems') ||
-        (view === 'poem'  && link === 'poems');
+        (view === 'about'  && link === 'about')  ||
+        (view === 'poems'  && link === 'poems')  ||
+        (view === 'poem'   && link === 'poems')  ||
+        (view === 'editor' && link === 'editor');
       a.classList.toggle('is-active', !!match);
     });
   }
@@ -359,7 +361,15 @@
     return POEMS[(i + 1) % POEMS.length].id;
   }
 
+  function closeHamburger() {
+    const hb = document.getElementById('navHamburger');
+    const nl = document.getElementById('navLinks');
+    if (nl) nl.classList.remove('is-open');
+    if (hb) { hb.classList.remove('is-open'); hb.setAttribute('aria-expanded', 'false'); }
+  }
+
   function route() {
+    closeHamburger();
     const r = parseHash();
     setActiveNav(r.view);
 
@@ -378,6 +388,10 @@
       const p = renderPoem(r.id);
       showView('poem');
       if (p) setStageRef(p.video);
+    } else if (r.view === 'editor') {
+      if (!(Store && Store.isAdmin())) { location.hash = '#/'; return; }
+      showView('editor');
+      setStageRef(viewVideoRef('home'));
     }
   }
 
@@ -450,7 +464,6 @@
       if (!a) return;
       const target = a.getAttribute('href');
       if (target === '#/') {
-        // reset home progress on brand click
         requestAnimationFrame(() => setHomeProgress(0));
       }
     });
@@ -460,6 +473,23 @@
     if (hint) {
       hint.style.cursor = 'pointer';
       hint.addEventListener('click', () => setHomeProgress(0.9));
+    }
+
+    // hamburger toggle
+    const hamburger = document.getElementById('navHamburger');
+    const navLinksEl = document.getElementById('navLinks');
+    if (hamburger && navLinksEl) {
+      hamburger.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const open = navLinksEl.classList.toggle('is-open');
+        hamburger.classList.toggle('is-open', open);
+        hamburger.setAttribute('aria-expanded', String(open));
+      });
+      // close when clicking outside the nav
+      document.addEventListener('click', (e) => {
+        if (!navLinksEl.classList.contains('is-open')) return;
+        if (!e.target.closest('.masthead__nav')) closeHamburger();
+      });
     }
   }
 
@@ -495,7 +525,13 @@
       }
     });
     window.addEventListener('pim:datachanged', rebuild);
-    window.addEventListener('pim:authchanged', () => { applyAdminClass(); rebuild(); });
+    window.addEventListener('pim:authchanged', () => {
+      applyAdminClass();
+      rebuild();
+      if (!(Store && Store.isAdmin()) && document.body.dataset.view === 'editor') {
+        location.hash = '#/';
+      }
+    });
   }
 
   function applyAdminClass() {
