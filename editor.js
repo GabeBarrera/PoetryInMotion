@@ -13,40 +13,20 @@
   function emitChange() { window.dispatchEvent(new CustomEvent('pim:datachanged')); }
   function esc(s) { return String(s == null ? '' : s).replace(/[&<>"]/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;' }[c])); }
 
-  // Built-in ambient clips, named, so the picker is friendly.
-  function builtinClips() {
-    const seen = new Set();
-    const out = [];
-    (window.POEMS_ORIGINAL || window.POEMS || []).forEach(p => {
-      if (p.video && !seen.has(p.video)) { seen.add(p.video); out.push({ url: p.video, name: 'clip · ' + p.title }); }
+  async function loadPoemVideoSelect(selectedRef) {
+    const sel = $('#poemVideoSel', overlay);
+    if (!sel) return;
+    let files = [];
+    try {
+      const res = await fetch('media/video/index.json');
+      files = res.ok ? await res.json() : [];
+    } catch (_) {}
+    let html = '<option value="">— choose a film loop —</option>';
+    files.forEach(f => {
+      const url = 'media/video/' + f;
+      html += `<option value="${esc(url)}"${url === selectedRef ? ' selected' : ''}>${esc(f)}</option>`;
     });
-    const vv = window.VIEW_VIDEOS || {};
-    [['home', 'clip · ocean (default home)'], ['about', 'clip · clouds (default about)']].forEach(([k, n]) => {
-      if (vv[k] && !seen.has(vv[k])) { seen.add(vv[k]); out.push({ url: vv[k], name: n }); }
-    });
-    return out;
-  }
-
-  /* Build <option>s for a video <select>. Value is a video ref.
-     Groups: imported library, then built-in clips. */
-  function videoOptions(selectedRef) {
-    const lib = Store.getVideos();
-    const clips = builtinClips();
-    let html = '<option value="">Choose a film loop</option>';
-    if (lib.length) {
-      html += '<optgroup label="your imported videos">';
-      lib.forEach(v => {
-        const ref = 'lib:' + v.id;
-        html += `<option value="${esc(ref)}"${ref === selectedRef ? ' selected' : ''}>${esc(v.name)} · ${v.kind === 'file' ? 'file' : 'link'}</option>`;
-      });
-      html += '</optgroup>';
-    }
-    html += '<optgroup label="built-in clips">';
-    clips.forEach(c => {
-      html += `<option value="${esc(c.url)}"${c.url === selectedRef ? ' selected' : ''}>${esc(c.name)}</option>`;
-    });
-    html += '</optgroup>';
-    return html;
+    sel.innerHTML = html;
   }
 
   // ===========================================================
@@ -171,7 +151,7 @@
         <div class="ed-field">
           <span class="ed-label">film loop <em>· plays behind the card &amp; full-screen when opened</em></span>
           <div class="ed-row">
-            <select class="ed-input ed-select" name="video" id="poemVideoSel">${videoOptions(editing ? editing.video : '')}</select>
+            <select class="ed-input ed-select" name="video" id="poemVideoSel"><option value="">loading…</option></select>
             <button type="submit" class="btn ed-mini">${editing ? 'Save changes →' : 'Add poem →'}</button>
           </div>
         </div>
@@ -183,6 +163,7 @@
       <div class="ed-manage" id="poemManage"></div>`;
 
     rt = window.PIMRichText.create($('#rtMount', overlay), initialHtml);
+    loadPoemVideoSelect(editing ? editing.video : '');
 
     const resetBtn = $('#poemReset', overlay);
     if (resetBtn) resetBtn.addEventListener('click', () => {

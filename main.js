@@ -52,7 +52,10 @@
     currentSrc = src;
     nextVid.src = src;
     nextVid.load();
+    let done = false;
     const onReady = () => {
+      if (done) return;
+      done = true;
       nextVid.removeEventListener('loadeddata', onReady);
       const play = nextVid.play();
       if (play && play.catch) play.catch(() => {});
@@ -63,13 +66,16 @@
       const tmp = currentVid; currentVid = nextVid; nextVid = tmp;
     };
     nextVid.addEventListener('loadeddata', onReady);
-    // safety: if metadata loads but loadeddata is slow, still flip
+    // safety: if loadeddata is slow, force the flip anyway
     setTimeout(() => {
-      if (!nextVid.classList.contains('is-active') && currentSrc === src) {
-        nextVid.classList.add('is-active');
-        currentVid.classList.remove('is-active');
-        const tmp = currentVid; currentVid = nextVid; nextVid = tmp;
-      }
+      if (done || currentSrc !== src) return;
+      done = true;
+      nextVid.removeEventListener('loadeddata', onReady);
+      const play = nextVid.play();
+      if (play && play.catch) play.catch(() => {});
+      nextVid.classList.add('is-active');
+      currentVid.classList.remove('is-active');
+      const tmp = currentVid; currentVid = nextVid; nextVid = tmp;
     }, 1500);
   }
 
