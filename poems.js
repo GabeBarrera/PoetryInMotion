@@ -21,22 +21,24 @@ window.POEMS = [
     ]
   },
   {
-    id: "static-above",
-    title: "Static Above",
+    id: "oceant",
+    title: "Oceant",
     number: "02",
-    video: "media/video/sd_bridge.mov",
+    video: "media/video/ocean.mov",
     poster: "",
-    epigraph: "a transmission, from somewhere colder",
+    epigraph: "waves crash & so do I",
     body: [
-      "there is a frequency between the stars",
-      "where nothing answers and nothing waits.",
-      "i tune my chest to it some nights —",
-      "the long hiss, the low and listening dark.",
+      "The overwhelming infinity",
+      "Washes over me",
+      "I am helpless"
       "",
-      "we were told the universe is silent.",
-      "the universe is not silent.",
-      "it is only speaking in a language",
-      "older than the word for listening."
+      "Drown, breath, drown, breath, and drown again",
+      "No breaks today.",
+      "",
+      "I am exhausted",
+      "Oh no",
+      "",
+      "Oceant"
     ]
   },
   {
