@@ -97,7 +97,6 @@
           <div class="card__rule"></div>
           <p class="card__epigraph">${p.epigraph}</p>
         </div>
-        <span class="card__open-hint">press ↵ or click to open</span>
         <button class="card__edit" data-admin-only data-edit-card="${p.id}" title="Edit this poem">✎ edit</button>
       `;
       track.appendChild(card);

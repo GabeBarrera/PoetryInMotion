@@ -1003,6 +1003,7 @@ body.is-admin [data-admin-only] { display: inline-flex !important; }
 .corner--tl { top: 50%; left: 16px; transform: rotate(-90deg) translateX(0); transform-origin: left top; }
 .corner--bl { bottom: 16px; left: 16px; }
 .corner--br { bottom: 16px; right: 16px; display: inline-flex; align-items: center; gap: 8px; }
+@media (max-width: 600px) { .corner--br { display: none; } }
 
 .blink {
   color: #e25c5c;
@@ -1433,7 +1434,6 @@ body.editor-open { }
   border-right: 1px solid var(--rule);
 }
 .rt-group:last-child { border-right: 0; padding-right: 0; }
-.rt-group--img { margin-left: auto; }
 
 .rt-btn {
   min-width: 28px;
@@ -1454,17 +1454,6 @@ body.editor-open { }
 .rt-btn.is-italic { font-style: italic; }
 .rt-btn.is-underline { text-decoration: underline; }
 
-.rt-select {
-  height: 28px;
-  font-family: var(--type);
-  font-size: 11px;
-  color: var(--bone);
-  background: rgba(0, 0, 0, 0.3);
-  border: 1px solid var(--rule-2);
-  border-radius: 2px;
-  padding: 0 6px;
-  cursor: pointer;
-}
 
 .rt-area {
   min-height: 200px;
@@ -1486,52 +1475,9 @@ body.editor-open { }
 .rt-area h1 { font-size: 1.7em; }
 .rt-area h2 { font-size: 1.4em; }
 .rt-area h3 { font-size: 1.15em; }
-.rt-area img, .rt-embed {
-  max-width: 100%;
-  height: auto;
-  display: block;
-  margin: 0.7em 0;
-  border: 1px solid var(--rule);
-}
 .rt-area ul, .rt-area ol { padding-left: 1.4em; margin: 0 0 0.85em; }
 .rt-area:empty::before { content: "write here…"; color: rgba(201,193,173,0.4); }
 
-.rt-imgbar {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 8px;
-  padding: 9px 10px;
-  border-bottom: 1px solid var(--rule);
-  background: rgba(0, 0, 0, 0.25);
-}
-.rt-imgbar input[type="url"] {
-  flex: 1;
-  min-width: 150px;
-  font-family: var(--type);
-  font-size: 12px;
-  color: var(--bone);
-  background: rgba(0, 0, 0, 0.4);
-  border: 1px solid var(--rule-2);
-  border-radius: 2px;
-  padding: 8px 10px;
-}
-.rt-imgbar input[type="url"]:focus { outline: none; border-color: var(--bone); }
-.rt-imgor { font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--bone-2); }
-.rt-imgfile-label, .rt-imgins, .rt-imgcancel {
-  font-size: 10px;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: var(--bone);
-  border: 1px solid var(--rule-2);
-  padding: 8px 11px;
-  cursor: pointer;
-  transition: background 150ms ease, border-color 150ms ease;
-}
-.rt-imgfile-label:hover, .rt-imgins:hover, .rt-imgcancel:hover {
-  background: rgba(237, 231, 217, 0.06);
-  border-color: var(--bone);
-}
 
 /* ---- edit buttons on cards + poem detail ---- */
 .card__edit {
@@ -1718,55 +1664,43 @@ body.is-admin .card:hover .card__edit { opacity: 0.92; }
 }
 
 /* ===========================================================
-   Media library browser (inside editor modal)
+   Video preview (inside editor videos tab)
    =========================================================== */
 
-.ed-medlib {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-  gap: 12px;
-}
-
-.medlib-cell {
-  margin: 0;
-  border: 1px solid var(--rule-2);
+.ed-preview-wrap {
   background: #000;
+  border: 1px solid var(--rule-2);
+  aspect-ratio: 16 / 9;
   overflow: hidden;
 }
 
-.medlib-cell__media {
-  aspect-ratio: 16 / 10;
-  background: #07080a;
-  overflow: hidden;
-}
-
-.medlib-cell__media video {
+.ed-preview-vid {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  filter: brightness(0.72);
   display: block;
 }
 
-.medlib-cell__cap {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-  padding: 8px 10px;
-}
+/* ===========================================================
+   Editor modal — mobile fullscreen
+   =========================================================== */
 
-.medlib-cell__name {
-  font-size: 11px;
-  color: var(--bone-2);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  flex: 1;
-  min-width: 0;
+@media (max-width: 600px) {
+  .editor-overlay {
+    padding: 0;
+    align-items: stretch;
+  }
+  .editor {
+    width: 100%;
+    max-height: 100dvh;
+    height: 100dvh;
+    border: none;
+    border-radius: 0;
+  }
+  .editor__foot {
+    padding-bottom: max(14px, env(safe-area-inset-bottom, 14px));
+  }
 }
-
-.medlib-cell__pick { flex-shrink: 0; }
 
 /* ===========================================================
    Reduced motion

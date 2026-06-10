@@ -32,7 +32,7 @@
   function videoOptions(selectedRef) {
     const lib = Store.getVideos();
     const clips = builtinClips();
-    let html = '<option value="">— choose a film loop —</option>';
+    let html = '<option value="">Choose a film loop</option>';
     if (lib.length) {
       html += '<optgroup label="your imported videos">';
       lib.forEach(v => {
@@ -172,20 +172,17 @@
           <span class="ed-label">film loop <em>· plays behind the card &amp; full-screen when opened</em></span>
           <div class="ed-row">
             <select class="ed-input ed-select" name="video" id="poemVideoSel">${videoOptions(editing ? editing.video : '')}</select>
-            <button type="button" class="btn btn--ghost ed-mini" id="poemAddVideo">+ import / link</button>
+            <button type="submit" class="btn ed-mini">${editing ? 'Save changes →' : 'Add poem →'}</button>
           </div>
         </div>
         <div class="ed-actions">
           ${editing && !isCustom ? '<button type="button" class="ed-danger" id="poemReset">revert to original</button>' : ''}
           ${isCustom ? '<button type="button" class="ed-danger" id="poemDelete">delete poem</button>' : ''}
-          <button type="submit" class="btn">${editing ? 'Save changes →' : 'Add poem →'}</button>
         </div>
       </form>
       <div class="ed-manage" id="poemManage"></div>`;
 
     rt = window.PIMRichText.create($('#rtMount', overlay), initialHtml);
-
-    $('#poemAddVideo', overlay).addEventListener('click', () => switchTab('videos'));
 
     const resetBtn = $('#poemReset', overlay);
     if (resetBtn) resetBtn.addEventListener('click', () => {
@@ -260,124 +257,79 @@
   }
 
   // ===========================================================
-  // Tab: Videos (landing pickers + library + import)
+  // Tab: Videos (landing/about pickers + preview)
   // ===========================================================
   function renderVideosTab() {
     const body = $('#editorBody', overlay);
-    const vv = Object.assign({}, window.VIEW_VIDEOS, Store.getViewVideos());
     body.innerHTML = `
       <div class="ed-section">
         <div class="ed-divider">background films</div>
         <div class="ed-row ed-row--wrap">
           <label class="ed-field ed-field--grow">
             <span class="ed-label">landing page</span>
-            <select class="ed-input ed-select" id="viewHome">${videoOptions(vv.home || '')}</select>
+            <select class="ed-input ed-select" id="viewHome"><option value="">loading…</option></select>
           </label>
           <label class="ed-field ed-field--grow">
             <span class="ed-label">about page</span>
-            <select class="ed-input ed-select" id="viewAbout">${videoOptions(vv.about || '')}</select>
+            <select class="ed-input ed-select" id="viewAbout"><option value="">loading…</option></select>
           </label>
         </div>
       </div>
-
       <div class="ed-section">
-        <div class="ed-divider">select from media library</div>
-        <div class="ed-medlib-wrap" id="mediaLibrary"><p class="ed-empty">Loading media library…</p></div>
-      </div>
-
-      <div class="ed-section">
-        <div class="ed-divider">your library</div>
-        <div class="ed-grid" id="vidGrid"></div>
+        <div class="ed-divider">Preview</div>
+        <div class="ed-preview-wrap">
+          <video class="ed-preview-vid" id="viewPreviewVid" muted loop playsinline></video>
+        </div>
       </div>`;
 
-    // view pickers
-    $('#viewHome', overlay).addEventListener('change', e => { Store.setViewVideo('home', e.target.value); emitChange(); note('landing film updated.', 'ok'); });
-    $('#viewAbout', overlay).addEventListener('change', e => { Store.setViewVideo('about', e.target.value); emitChange(); note('about film updated.', 'ok'); });
-
-    renderMediaLibrary($('#mediaLibrary', overlay));
-    renderVideoGrid();
+    const vv = Object.assign({}, window.VIEW_VIDEOS, Store.getViewVideos());
+    loadMediaDropdowns(vv);
   }
 
-  async function renderMediaLibrary(container) {
-    if (!container) return;
+  async function loadMediaDropdowns(vv) {
+    const homeEl = $('#viewHome', overlay);
+    const aboutEl = $('#viewAbout', overlay);
+    const previewEl = $('#viewPreviewVid', overlay);
+    if (!homeEl || !aboutEl) return;
+
+    let files = [];
     try {
       const res = await fetch('media/video/index.json');
-      const files = res.ok ? await res.json() : [];
-      if (!files.length) {
-        container.innerHTML = '<p class="ed-empty">No videos found in media/video/.</p>';
-        return;
-      }
-      container.innerHTML = `
-        <div class="ed-medlib">
-          ${files.map(f => `
-            <figure class="medlib-cell" data-file="${esc(f)}">
-              <div class="medlib-cell__media">
-                <video muted loop playsinline src="media/video/${esc(f)}"></video>
-              </div>
-              <figcaption class="medlib-cell__cap">
-                <span class="medlib-cell__name" title="${esc(f)}">${esc(f)}</span>
-                <button class="btn btn--ghost ed-mini medlib-cell__pick" data-pick="${esc(f)}">Choose File</button>
-              </figcaption>
-            </figure>`).join('')}
-        </div>`;
+      files = res.ok ? await res.json() : [];
+    } catch (_) {}
 
-      container.querySelectorAll('video').forEach(v => {
-        const p = v.play(); if (p && p.catch) p.catch(() => {});
+    function buildOptions(selectedRef) {
+      let html = '<option value="">— choose —</option>';
+      files.forEach(f => {
+        const url = 'media/video/' + f;
+        html += `<option value="${esc(url)}"${url === selectedRef ? ' selected' : ''}>${esc(f)}</option>`;
       });
-
-      container.querySelectorAll('[data-pick]').forEach(btn => {
-        btn.addEventListener('click', () => {
-          const filename = btn.dataset.pick;
-          const name = filename.replace(/\.[^.]+$/, '').replace(/[-_]/g, ' ');
-          const url = 'media/video/' + filename;
-          const existing = Store.getVideos().find(v => v.kind === 'url' && v.url === url);
-          if (!existing) {
-            Store.addVideoURL(name, url);
-            emitChange();
-          }
-          note('"' + name + '" added to your library.', 'ok');
-          renderVideoGrid();
-        });
-      });
-    } catch (_) {
-      container.innerHTML = '<p class="ed-empty">Could not load media library.</p>';
+      return html;
     }
-  }
 
-  function renderVideoGrid() {
-    const grid = $('#vidGrid', overlay);
-    if (!grid) return;
-    const lib = Store.getVideos();
-    if (!lib.length) {
-      grid.innerHTML = '<p class="ed-empty">Nothing imported yet. Link a URL or upload a file above — it becomes available to every poem and to the background pickers.</p>';
-      return;
+    homeEl.innerHTML = buildOptions(vv.home || '');
+    aboutEl.innerHTML = buildOptions(vv.about || '');
+
+    function playPreview(url) {
+      if (!previewEl || !url) return;
+      previewEl.src = url;
+      const p = previewEl.play(); if (p && p.catch) p.catch(() => {});
     }
-    grid.innerHTML = lib.map(v => `
-      <figure class="vid-cell" data-id="${esc(v.id)}">
-        <div class="vid-cell__media"><video muted loop playsinline></video></div>
-        <figcaption class="vid-cell__cap">
-          <span class="vid-cell__name" title="${esc(v.name)}">${esc(v.name)}</span>
-          <span class="vid-cell__kind">${v.kind === 'file' ? 'file' : 'link'}</span>
-        </figcaption>
-        <button class="vid-cell__del" data-del="${esc(v.id)}" aria-label="Delete">remove</button>
-      </figure>`).join('');
 
-    // resolve + attach previews
-    lib.forEach(async v => {
-      const cell = grid.querySelector(`.vid-cell[data-id="${CSS.escape(v.id)}"]`);
-      if (!cell) return;
-      const url = await Store.resolveRef('lib:' + v.id);
-      const vid = cell.querySelector('video');
-      if (url && vid) { vid.src = url; const p = vid.play(); if (p && p.catch) p.catch(() => {}); }
+    playPreview(vv.home || vv.about || (files.length ? 'media/video/' + files[0] : ''));
+
+    homeEl.addEventListener('change', e => {
+      Store.setViewVideo('home', e.target.value);
+      emitChange();
+      note('landing film updated.', 'ok');
+      playPreview(e.target.value);
     });
-
-    grid.querySelectorAll('[data-del]').forEach(b =>
-      b.addEventListener('click', async () => {
-        await Store.removeVideo(b.dataset.del);
-        emitChange();
-        renderVideoGrid();
-        note('video removed.', 'ok');
-      }));
+    aboutEl.addEventListener('change', e => {
+      Store.setViewVideo('about', e.target.value);
+      emitChange();
+      note('about film updated.', 'ok');
+      playPreview(e.target.value);
+    });
   }
 
   // ===========================================================

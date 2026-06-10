@@ -27,13 +27,13 @@
       { block: 'P',  label: '¶',  title: 'Body text' }
     ],
     [
-      { cmd: 'justifyLeft',   label: '⇤', title: 'Align left' },
+      { cmd: 'justifyLeft',   label: '←', title: 'Align left' },
       { cmd: 'justifyCenter', label: '↔', title: 'Align center' },
-      { cmd: 'justifyRight',  label: '⇥', title: 'Align right' }
+      { cmd: 'justifyRight',  label: '→', title: 'Align right' }
     ],
     [
-      { cmd: 'outdent', label: '⇧⇥', title: 'Outdent' },
-      { cmd: 'indent',  label: '⇥',  title: 'Indent / tab' }
+      { cmd: 'outdent', label: '⇥', title: 'Outdent' },
+      { cmd: 'indent',  label: '⇥',  title: 'Indent' }
     ],
     [
       { cmd: 'insertUnorderedList', label: '•', title: 'Bullet list' },
@@ -53,38 +53,15 @@
                 ${b.block ? `data-block="${b.block}"` : ''}
                 title="${esc(b.title)}" tabindex="-1">${b.label}</button>`).join('')}
           </div>`).join('')}
-        <div class="rt-group">
-          <select class="rt-select" data-size title="Font size" tabindex="-1">
-            <option value="">size</option>
-            <option value="2">small</option>
-            <option value="3">normal</option>
-            <option value="4">large</option>
-            <option value="5">x-large</option>
-            <option value="6">huge</option>
-          </select>
-        </div>
-        <div class="rt-group rt-group--img">
-          <button type="button" class="rt-btn" data-img title="Embed a picture" tabindex="-1">⊞ image</button>
-        </div>
-      </div>
-      <div class="rt-imgbar" hidden>
-        <input type="url" class="rt-imgurl" placeholder="paste image URL…" />
-        <span class="rt-imgor">or</span>
-        <label class="rt-imgfile-label">choose file
-          <input type="file" class="rt-imgfile" accept="image/*" hidden />
-        </label>
-        <button type="button" class="rt-imgins">insert</button>
-        <button type="button" class="rt-imgcancel" aria-label="Cancel">✕</button>
       </div>
       <div class="rt-area" contenteditable="true" spellcheck="true"></div>`;
 
     const toolbar = mount.querySelector('.rt-toolbar');
     const area = mount.querySelector('.rt-area');
-    const imgbar = mount.querySelector('.rt-imgbar');
 
     area.innerHTML = (initialHtml && initialHtml.trim()) ? initialHtml : '<p><br></p>';
 
-    // inline styles for align/size so they survive serialization
+    // inline styles for align so they survive serialization
     try { document.execCommand('styleWithCSS', false, true); } catch (_) {}
 
     function exec(cmd, val) {
@@ -103,59 +80,6 @@
       if (!btn) return;
       if (btn.dataset.cmd) exec(btn.dataset.cmd);
       else if (btn.dataset.block) exec('formatBlock', btn.dataset.block);
-      else if (btn.hasAttribute('data-img')) toggleImgBar();
-    });
-
-    const sizeSel = toolbar.querySelector('[data-size]');
-    sizeSel.addEventListener('change', () => {
-      if (sizeSel.value) exec('fontSize', sizeSel.value);
-      sizeSel.value = '';
-    });
-
-    // ---- image embedding ----
-    function toggleImgBar() {
-      imgbar.hidden = !imgbar.hidden;
-      if (!imgbar.hidden) imgbar.querySelector('.rt-imgurl').focus();
-    }
-    let savedRange = null;
-    area.addEventListener('mouseup', saveRange);
-    area.addEventListener('keyup', saveRange);
-    function saveRange() {
-      const sel = window.getSelection();
-      if (sel && sel.rangeCount && area.contains(sel.anchorNode)) savedRange = sel.getRangeAt(0).cloneRange();
-    }
-    function insertImage(src) {
-      if (!src) return;
-      area.focus();
-      const sel = window.getSelection();
-      if (savedRange) { sel.removeAllRanges(); sel.addRange(savedRange); }
-      const img = document.createElement('img');
-      img.src = src;
-      img.className = 'rt-embed';
-      const range = sel.rangeCount ? sel.getRangeAt(0) : null;
-      if (range) {
-        range.collapse(false);
-        range.insertNode(img);
-        // move caret after image
-        range.setStartAfter(img); range.collapse(true);
-        sel.removeAllRanges(); sel.addRange(range);
-      } else {
-        area.appendChild(img);
-      }
-      imgbar.hidden = true;
-      imgbar.querySelector('.rt-imgurl').value = '';
-    }
-    imgbar.querySelector('.rt-imgins').addEventListener('click', () => {
-      const url = imgbar.querySelector('.rt-imgurl').value.trim();
-      if (url) insertImage(url);
-    });
-    imgbar.querySelector('.rt-imgcancel').addEventListener('click', () => { imgbar.hidden = true; });
-    imgbar.querySelector('.rt-imgfile').addEventListener('change', e => {
-      const file = e.target.files && e.target.files[0];
-      if (!file) return;
-      const reader = new FileReader();
-      reader.onload = () => insertImage(reader.result);
-      reader.readAsDataURL(file);
     });
 
     // ---- Tab key = indent (typewriter tabbing) ----

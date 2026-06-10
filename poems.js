@@ -5,7 +5,7 @@ window.POEMS = [
     id: "tidewater",
     title: "Tidewater",
     number: "01",
-    video: "https://assets.mixkit.co/videos/4146/4146-720.mp4",
+    video: "media/video/sd_bridge.mov",
     poster: "",
     epigraph: "after the storm, before the next",
     body: [
@@ -24,7 +24,7 @@ window.POEMS = [
     id: "static-above",
     title: "Static Above",
     number: "02",
-    video: "https://assets.mixkit.co/videos/4831/4831-720.mp4",
+    video: "media/video/sd_bridge.mov",
     poster: "",
     epigraph: "a transmission, from somewhere colder",
     body: [
@@ -43,7 +43,7 @@ window.POEMS = [
     id: "slow-hours",
     title: "Slow Hours",
     number: "03",
-    video: "https://assets.mixkit.co/videos/2408/2408-720.mp4",
+    video: "media/video/sd_bridge.mov",
     poster: "",
     epigraph: "for the kettle, the chair, the cat",
     body: [
@@ -62,7 +62,7 @@ window.POEMS = [
     id: "the-long-way",
     title: "The Long Way",
     number: "04",
-    video: "https://assets.mixkit.co/videos/2627/2627-720.mp4",
+    video: "media/video/sd_bridge.mov",
     poster: "",
     epigraph: "a road by any other name",
     body: [
@@ -81,7 +81,7 @@ window.POEMS = [
     id: "cold-reading",
     title: "Cold Reading",
     number: "05",
-    video: "https://assets.mixkit.co/videos/5012/5012-720.mp4",
+    video: "media/video/sd_bridge.mov",
     poster: "",
     epigraph: "rain, and the rumor of rain",
     body: [
@@ -100,7 +100,7 @@ window.POEMS = [
     id: "threshold",
     title: "Threshold",
     number: "06",
-    video: "https://assets.mixkit.co/videos/39767/39767-720.mp4",
+    video: "media/video/sd_bridge.mov",
     poster: "",
     epigraph: "any door, properly considered, is a poem",
     body: [
@@ -119,6 +119,6 @@ window.POEMS = [
 
 // Per-view ambient videos.
 window.VIEW_VIDEOS = {
-  home:   "https://assets.mixkit.co/videos/4146/4146-720.mp4",      // ocean (used for home + bio)
-  about:  "https://assets.mixkit.co/videos/2408/2408-720.mp4",      // clouds
+  home:  "media/video/sd_bridge.mov",
+  about: "media/video/sd_bridge.mov",
 };
