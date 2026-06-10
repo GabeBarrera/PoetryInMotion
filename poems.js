@@ -30,7 +30,7 @@ window.POEMS = [
     body: [
       "The overwhelming infinity",
       "Washes over me",
-      "I am helpless"
+      "I am helpless",
       "",
       "Drown, breath, drown, breath, and drown again",
       "No breaks today.",
