@@ -2,22 +2,22 @@
 // Videos are short looping ambient clips from Mixkit's free library.
 window.POEMS = [
   {
-    id: "tidewater",
-    title: "Tidewater",
+    id: "cowtow",
+    title: "Cow-Tow",
     number: "01",
-    video: "media/video/sd_bridge.mov",
+    video: "media/video/cows.mov",
     poster: "",
-    epigraph: "after the storm, before the next",
+    epigraph: "O Beautiful Bovine Beast",
     body: [
-      "the sea forgets its grievances by morning,",
-      "rehearses them again by dusk —",
-      "a wide grey mouth, opening,",
-      "closing on the same small stone.",
+      "Until we meet again,",
+      "O beautiful Bovine Beast",
+      "blessings be to your grassy bed,",
+      "I wish you a stomach well and fed.",
       "",
-      "i used to think the tide was patient.",
-      "now i know it is only tired.",
-      "still it returns. still it returns.",
-      "and so, eventually, do i."
+      "Run free, walk fearless",
+      "Stand proud in the grassy knoll.",
+      "May the sun shine warm upon your back,",
+      "Can't wait for you to be my Mc D snack."
     ]
   },
   {
