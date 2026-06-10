@@ -668,20 +668,6 @@ body.is-admin [data-admin-only] { display: inline-flex !important; }
   flex-wrap: wrap;
 }
 
-.kbd {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 22px;
-  height: 22px;
-  padding: 0 6px;
-  border: 1px solid var(--rule-2);
-  border-radius: 3px;
-  font-size: 11px;
-  color: var(--bone);
-  background: rgba(11,12,14,0.4);
-}
-
 /* ---- carousel ---- */
 
 .carousel {
@@ -1045,6 +1031,42 @@ body.is-admin [data-admin-only] { display: inline-flex !important; }
   flex-shrink: 0;
 }
 .poems__tools .btn { white-space: nowrap; }
+
+.poems__search {
+  display: flex;
+  align-items: stretch;
+  border: 1px solid var(--rule-2);
+  transition: border-color 0.2s;
+}
+.poems__search:focus-within { border-color: var(--bone-2); }
+.poems__search-input {
+  background: transparent;
+  border: none;
+  color: var(--bone);
+  font-family: var(--type);
+  font-size: 11px;
+  letter-spacing: 0.15em;
+  padding: 7px 12px;
+  width: 180px;
+  outline: none;
+}
+.poems__search-input::placeholder { color: var(--bone-2); }
+.poems__search-input::-webkit-search-cancel-button { display: none; }
+.poems__search-btn {
+  background: transparent;
+  border: none;
+  border-left: 1px solid var(--rule-2);
+  color: var(--bone-2);
+  font-family: var(--type);
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  padding: 7px 14px;
+  cursor: pointer;
+  transition: color 0.2s;
+  white-space: nowrap;
+}
+.poems__search-btn:hover { color: var(--bone); }
 
 /* ===========================================================
    Editor modal

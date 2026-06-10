@@ -152,11 +152,10 @@
           <p class="poems__eyebrow">// the index &middot; <span id="poemsCounter">01 / 06</span></p>
           <h2 class="poems__h2">Six small films,<br/>six smaller poems.</h2>
           <div class="poems__bar">
-            <p class="poems__hint">
-              <span class="kbd">←</span><span class="kbd">→</span> to browse &middot;
-              <span class="kbd">↵</span> to open &middot;
-              or drag a card
-            </p>
+            <form class="poems__search" id="poemsSearch" autocomplete="off">
+              <input class="poems__search-input" id="poemsSearchInput" type="search" placeholder="search by title…" aria-label="Search poems by title" />
+              <button class="poems__search-btn" type="submit">search</button>
+            </form>
           </div>
         </header>
 
@@ -204,9 +203,9 @@
   </main>
 
   <!-- ambient corner marks -->
-  <div class="corner corner--tl">N 41° 22'</div>
-  <div class="corner corner--bl">W 071° 06'</div>
-  <div class="corner corner--br"><span class="blink">●</span> REC &middot; LIVE from MEMORY</div>
+  <div class="corner corner--tl">N 32° 42'</div>
+  <div class="corner corner--bl">W 117° 09'</div>
+  <div class="corner corner--br"><span class="blink">●</span> LIVE &middot; from MEMORY</div>
 
   <!-- ---- asset bootstrap ----------------------------------------------
        Loads the stylesheet and scripts (in order) relative to this page.

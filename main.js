@@ -435,6 +435,7 @@
         if (e.key === 'ArrowLeft')  { e.preventDefault(); goTo(activeIdx - 1); }
         if (e.key === 'ArrowRight') { e.preventDefault(); goTo(activeIdx + 1); }
         if (e.key === 'Enter' || e.key === ' ') {
+          if (document.activeElement && document.activeElement.closest('.poems__search')) return;
           e.preventDefault();
           openPoem(POEMS[activeIdx].id);
         }
@@ -493,6 +494,19 @@
     }
   }
 
+  // ---- search ----------------------------------------------
+  function bindSearch() {
+    const form = document.getElementById('poemsSearch');
+    if (!form) return;
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const q = document.getElementById('poemsSearchInput').value.trim().toLowerCase();
+      if (!q) return;
+      const idx = POEMS.findIndex(p => p.title.toLowerCase().includes(q));
+      if (idx >= 0) goTo(idx);
+    });
+  }
+
   // ---- resize ----------------------------------------------
   window.addEventListener('resize', () => {
     applyCarousel(true);
@@ -549,6 +563,7 @@
     bindHomeScroll();
     bindKeys();
     bindNav();
+    bindSearch();
     bindEditor();
 
     window.addEventListener('hashchange', route);
